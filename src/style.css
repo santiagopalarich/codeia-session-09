@@ -33,24 +33,22 @@
   background-color: var(--bg-primary);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f9f9f9;
-    --bg-card: #ffffff;
-    --bg-hover: #f5f5f5;
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9f9f9;
+  --bg-card: #ffffff;
+  --bg-hover: #f5f5f5;
 
-    --text-primary: #213547;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
+  --text-primary: #213547;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
 
-    --border-color: #e5e7eb;
-    --border-hover: #d1d5db;
+  --border-color: #e5e7eb;
+  --border-hover: #d1d5db;
 
-    --primary-color: #42b883;
-    --primary-hover: #3aa876;
-    --primary-text: #ffffff;
-  }
+  --primary-color: #42b883;
+  --primary-hover: #3aa876;
+  --primary-text: #ffffff;
 }
 
 a {

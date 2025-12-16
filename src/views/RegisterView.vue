@@ -95,14 +95,15 @@ const handleRegister = async () => {
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  background: white;
-  color: #1a1a1a;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 h1 {
   text-align: center;
   margin-bottom: 2rem;
-  color: #2c3e50;
+  color: var(--text-primary);
 }
 
 .register-form {
@@ -119,14 +120,21 @@ h1 {
 
 input {
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   border-radius: 4px;
   font-size: 1rem;
 }
 
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
 .submit-btn {
-  background-color: #42b883;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--primary-text);
   padding: 0.75rem;
   border: none;
   border-radius: 4px;
@@ -141,11 +149,11 @@ input {
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #3aa876;
+  background-color: var(--primary-hover);
 }
 
 .error-message {
-  color: #dc2626;
+  color: var(--danger-color);
   font-size: 0.875rem;
   text-align: center;
 }
@@ -153,6 +161,6 @@ input {
 .auth-link {
   text-align: center;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 </style>

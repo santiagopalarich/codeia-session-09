@@ -80,8 +80,8 @@ const saveEdit = () => {
   align-items: flex-start;
   justify-content: space-between;
   padding: 1rem;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   margin-bottom: 0.75rem;
   transition: all 0.2s;
@@ -89,10 +89,12 @@ const saveEdit = () => {
 
 .todo-item:hover {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  border-color: var(--border-hover);
 }
 
 .todo-item.completed {
-  background-color: #f9fafb;
+  background-color: var(--bg-secondary);
+  opacity: 0.8;
 }
 
 .todo-content {
@@ -107,24 +109,25 @@ const saveEdit = () => {
   cursor: pointer;
   width: 1.2rem;
   height: 1.2rem;
+  accent-color: var(--primary-color);
 }
 
 .text-content h3 {
   margin: 0;
   font-size: 1rem;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .text-through {
   text-decoration: line-through;
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .description {
   margin: 0.25rem 0 0 0;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .actions {
@@ -140,10 +143,11 @@ const saveEdit = () => {
   padding: 0.25rem;
   border-radius: 4px;
   transition: background-color 0.2s;
+  font-size: 1.2rem;
 }
 
 .icon-btn:hover {
-  background-color: #f3f4f6;
+  background-color: var(--bg-hover);
 }
 
 .edit-mode {
@@ -156,8 +160,15 @@ const saveEdit = () => {
 .edit-input {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
   border-radius: 4px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 
 .edit-actions {
@@ -174,12 +185,20 @@ const saveEdit = () => {
 }
 
 .save-btn {
-  background-color: #42b883;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--primary-text);
+}
+
+.save-btn:hover {
+  background-color: var(--primary-hover);
 }
 
 .cancel-btn {
-  background-color: #e5e7eb;
-  color: #374151;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.cancel-btn:hover {
+  background-color: var(--border-color);
 }
 </style>

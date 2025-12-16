@@ -111,52 +111,52 @@ const handleToggle = async (id: string) => {
   align-items: center;
   margin-bottom: 3rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .user-info h1 {
   margin: 0;
   font-size: 1.5rem;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .email {
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .logout-btn {
   padding: 0.5rem 1rem;
-  background-color: white;
-  border: 1px solid #e5e7eb;
-  color: #374151;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .logout-btn:hover {
-  background-color: #fca5a5;
-  border-color: #fca5a5;
-  color: #991b1b;
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: white;
 }
 
 .loading-state, .error-state {
   text-align: center;
   padding: 3rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .error-state {
-  color: #dc2626;
+  color: var(--danger-color);
 }
 
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  background: #f9fafb;
+  background: var(--bg-secondary);
   border-radius: 12px;
-  border: 2px dashed #e5e7eb;
+  border: 2px dashed var(--border-color);
 }
 
 .empty-icon {
@@ -166,12 +166,12 @@ const handleToggle = async (id: string) => {
 
 .empty-state h3 {
   margin: 0 0 0.5rem 0;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .empty-state p {
   margin: 0;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .todo-list {

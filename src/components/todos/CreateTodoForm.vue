@@ -46,7 +46,9 @@ const handleSubmit = async () => {
 .todo-input {
   flex: 1;
   padding: 0.75rem 1rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.2s;
@@ -54,14 +56,14 @@ const handleSubmit = async () => {
 
 .todo-input:focus {
   outline: none;
-  border-color: #42b883;
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(66, 184, 131, 0.1);
 }
 
 .add-btn {
   padding: 0 1.5rem;
-  background-color: #42b883;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--primary-text);
   border: none;
   border-radius: 8px;
   font-weight: 500;
@@ -70,13 +72,14 @@ const handleSubmit = async () => {
 }
 
 .add-btn:hover:not(:disabled) {
-  background-color: #3aa876;
+  background-color: var(--primary-hover);
   transform: translateY(-1px);
 }
 
 .add-btn:disabled {
-  background-color: #9ca3af;
+  background-color: var(--text-muted);
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
 @media (max-width: 640px) {

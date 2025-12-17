@@ -8,7 +8,7 @@ const projects = ref([
   { id: 4, name: 'Statra Insurance', color: '#f59e0b' },
 ])
 
-const activeItem = ref('Task List')
+
 
 defineEmits(['create'])
 </script>
@@ -30,12 +30,12 @@ defineEmits(['create'])
 
     <nav class="sidebar-nav">
       <div class="nav-section">
-        <a href="#" class="nav-item" :class="{ active: activeItem === 'Plan' }" @click.prevent="activeItem = 'Plan'">
-          <span class="icon">📅</span> Plan
-        </a>
-        <a href="#" class="nav-item" :class="{ active: activeItem === 'Task List' }" @click.prevent="activeItem = 'Task List'">
+        <router-link to="/dashboard" class="nav-item" active-class="active">
           <span class="icon">💼</span> Task List
-        </a>
+        </router-link>
+        <router-link to="/teams" class="nav-item" active-class="active">
+          <span class="icon">👥</span> Teams
+        </router-link>
       </div>
 
       <div class="nav-section">

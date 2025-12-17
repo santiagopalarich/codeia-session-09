@@ -17,7 +17,12 @@ export function useTodos() {
 
         const { data, error: fetchError } = await supabase
             .from('todos')
-            .select('*')
+            .select(`
+                *,
+                assignee:assignee_id(id, full_name, avatar_url),
+                responsible:responsible_id(id, full_name, avatar_url),
+                team:teams(id, name)
+            `)
             .order('created_at', { ascending: false })
 
         if (fetchError) {
@@ -29,19 +34,23 @@ export function useTodos() {
         loading.value = false
     }
 
-    const createTodo = async (title: string, description?: string) => {
+    const createTodo = async (todo: Partial<Todo>) => {
         const { data: { session } } = await supabase.auth.getSession()
         if (!session) throw new Error('Not authenticated')
 
         const { data, error: insertError } = await supabase
             .from('todos')
             .insert({
-                title,
-                description,
+                ...todo,
                 user_id: session.user.id,
-                status: 'todo' // Default status
+                status: todo.status || 'todo'
             })
-            .select()
+            .select(`
+                *,
+                assignee:assignee_id(id, full_name, avatar_url),
+                responsible:responsible_id(id, full_name, avatar_url),
+                team:teams(id, name)
+            `)
             .single()
 
         if (insertError) throw insertError

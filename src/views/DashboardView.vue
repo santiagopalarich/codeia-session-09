@@ -5,6 +5,7 @@ import { useTodos } from '../composables/useTodos'
 import { useRouter } from 'vue-router'
 import Sidebar from '../components/layout/Sidebar.vue'
 import TaskCard from '../components/todos/TaskCard.vue'
+import TodoModal from '../components/todos/TodoModal.vue'
 import ThemeToggle from '../components/ThemeToggle.vue'
 import type { Todo } from '../types'
 
@@ -24,13 +25,30 @@ const handleLogout = async () => {
   router.push('/login')
 }
 
-const handleCreate = async () => {
-  const title = prompt('Enter task title:')
-  if (!title) return
+// New state and functions for modal
+const isModalOpen = ref(false)
+const currentTask = ref<Todo | null>(null)
+
+const handleCreate = () => {
+  currentTask.value = null
+  isModalOpen.value = true
+}
+
+const openEditModal = (task: Todo) => {
+  currentTask.value = task
+  isModalOpen.value = true
+}
+
+const handleSaveTask = async (taskData: Partial<Todo>) => {
   try {
-    await createTodo(title)
+    if (currentTask.value) {
+       await useTodos().updateTodo(currentTask.value.id, taskData)
+    } else {
+       await createTodo(taskData)
+    }
+    isModalOpen.value = false
   } catch (e: any) {
-    alert('Error creating todo: ' + e.message)
+    alert('Error saving task: ' + e.message)
   }
 }
 
@@ -198,6 +216,7 @@ const onDrop = async (event: DragEvent, targetStatus: Todo['status']) => {
                draggable="true"
                class="draggable-item"
                @dragstart="onDragStart($event, task)"
+               @click="openEditModal(task)"
              >
                 <TaskCard 
                     :todo="task" 
@@ -207,6 +226,13 @@ const onDrop = async (event: DragEvent, targetStatus: Todo['status']) => {
           </div>
         </div>
       </div>
+      
+      <TodoModal 
+        :isOpen="isModalOpen"
+        :task="currentTask"
+        @close="isModalOpen = false"
+        @save="handleSaveTask"
+      />
     </main>
   </div>
 </template>

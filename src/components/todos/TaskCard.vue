@@ -12,9 +12,12 @@ defineEmits(['update', 'delete', 'toggle-complete'])
   <div class="task-card">
     <div class="card-header">
       <div class="avatars">
-        <!-- Mock avatars -->
-        <div class="avatar">👨‍💻</div>
-        <div class="avatar">👩‍🎨</div>
+        <div v-if="todo.assignee" class="avatar" :title="'Assignee: ' + todo.assignee.full_name">
+           {{ todo.assignee.full_name?.[0] || '?' }}
+        </div>
+        <div v-if="todo.responsible && todo.responsible.id !== todo.assignee?.id" class="avatar responsible" :title="'Responsible: ' + todo.responsible.full_name">
+           {{ todo.responsible.full_name?.[0] || '?' }}
+        </div>
       </div>
       <div class="priority-badge" :class="todo.status">
         {{ todo.status === 'done' ? 'Done' : (todo.status === 'in-progress' ? 'WIP' : 'High') }}
@@ -25,15 +28,18 @@ defineEmits(['update', 'delete', 'toggle-complete'])
       {{ todo.title }}
     </h3>
     
-    <div class="tags">
-      <span class="tag design">Design</span>
-      <span class="tag prototype">Prototype</span>
+    <div class="tags" v-if="todo.team">
+      <span class="tag team">{{ todo.team.name }}</span>
     </div>
     
     <div class="card-footer">
-      <div class="date">
-        <span class="icon">📅</span>
-        {{ new Date(todo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
+      <div class="date" v-if="todo.deadline">
+        <span class="icon">⏰</span>
+        {{ new Date(todo.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
+      </div>
+      <div class="date" v-else>
+         <span class="icon">📅</span>
+         {{ new Date(todo.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }}
       </div>
       
       <div class="actions">

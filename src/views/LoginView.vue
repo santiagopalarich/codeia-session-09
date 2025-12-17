@@ -69,8 +69,14 @@ const handleLogin = async () => {
 <style scoped>
 .login-container {
   max-width: 400px;
-  margin: 4rem auto;
+  margin: 0 auto; /* Center horizontally */
   padding: 2rem;
+  /* Center vertically in viewport */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   background: var(--bg-card);

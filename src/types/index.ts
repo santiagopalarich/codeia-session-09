@@ -3,7 +3,7 @@ export interface Todo {
     user_id: string
     title: string
     description: string | null
-    is_completed: boolean
+    status: 'todo' | 'in-progress' | 'done'
     created_at: string
     updated_at: string
 }

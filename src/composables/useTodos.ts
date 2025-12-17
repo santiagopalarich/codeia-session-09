@@ -38,7 +38,8 @@ export function useTodos() {
             .insert({
                 title,
                 description,
-                user_id: session.user.id
+                user_id: session.user.id,
+                status: 'todo' // Default status
             })
             .select()
             .single()
@@ -63,11 +64,8 @@ export function useTodos() {
         return data
     }
 
-    const toggleComplete = async (id: string) => {
-        const todo = todos.value.find((t: Todo) => t.id === id)
-        if (!todo) return
-
-        return updateTodo(id, { is_completed: !todo.is_completed })
+    const updateStatus = async (id: string, status: Todo['status']) => {
+        return updateTodo(id, { status })
     }
 
     const deleteTodo = async (id: string) => {
@@ -91,7 +89,7 @@ export function useTodos() {
         fetchTodos,
         createTodo,
         updateTodo,
-        toggleComplete,
+        updateStatus,
         deleteTodo
     }
 }

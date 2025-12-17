@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useTodos } from '../composables/useTodos'
 import { useRouter } from 'vue-router'
-import TodoItem from '../components/todos/TodoItem.vue'
-import CreateTodoForm from '../components/todos/CreateTodoForm.vue'
+import Sidebar from '../components/layout/Sidebar.vue'
+import TaskCard from '../components/todos/TaskCard.vue'
+import ThemeToggle from '../components/ThemeToggle.vue'
 import type { Todo } from '../types'
 
 const { user, signOut } = useAuth()
@@ -13,9 +15,8 @@ const {
   loading, 
   error, 
   createTodo, 
-  updateTodo, 
-  deleteTodo, 
-  toggleComplete 
+  updateStatus, 
+  deleteTodo 
 } = useTodos()
 
 const handleLogout = async () => {
@@ -23,7 +24,9 @@ const handleLogout = async () => {
   router.push('/login')
 }
 
-const handleCreate = async (title: string) => {
+const handleCreate = async () => {
+  const title = prompt('Enter task title:')
+  if (!title) return
   try {
     await createTodo(title)
   } catch (e: any) {
@@ -31,152 +34,366 @@ const handleCreate = async (title: string) => {
   }
 }
 
-const handleUpdate = async (id: string, updates: Partial<Todo>) => {
-  try {
-    await updateTodo(id, updates)
-  } catch (e: any) {
-    alert('Error updating todo: ' + e.message)
+// Kanban Columns
+const todoTasks = computed(() => todos.value.filter(t => t.status === 'todo'))
+const inProgressTasks = computed(() => todos.value.filter(t => t.status === 'in-progress'))
+const doneTasks = computed(() => todos.value.filter(t => t.status === 'done'))
+
+// Drag and Drop Logic
+const activeDropZone = ref<string | null>(null)
+
+const onDragStart = (event: DragEvent, task: Todo) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('taskId', task.id)
   }
 }
 
-const handleDelete = async (id: string) => {
-  if (!confirm('Are you sure you want to delete this task?')) return
-  try {
-    await deleteTodo(id)
-  } catch (e: any) {
-    alert('Error deleting todo: ' + e.message)
+const onDragOver = (event: DragEvent) => {
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
   }
 }
 
-const handleToggle = async (id: string) => {
-  try {
-    await toggleComplete(id)
-  } catch (e: any) {
-    alert('Error updating todo: ' + e.message)
+const onDragEnter = (zone: string) => {
+  activeDropZone.value = zone
+}
+
+const onDragLeave = (zone: string) => {
+  if (activeDropZone.value === zone) {
+    activeDropZone.value = null
+  }
+}
+
+const onDrop = async (event: DragEvent, targetStatus: Todo['status']) => {
+  activeDropZone.value = null
+  const taskId = event.dataTransfer?.getData('taskId')
+  
+  if (!taskId) return
+
+  const task = todos.value.find(t => t.id === taskId)
+  if (!task) return
+
+  if (task.status !== targetStatus) {
+    await updateStatus(taskId, targetStatus)
   }
 }
 </script>
 
 <template>
-  <div class="dashboard">
-    <header class="header">
-      <div class="user-info">
-        <h1>My Tasks</h1>
-        <span class="email">{{ user?.email }}</span>
-      </div>
-      <button @click="handleLogout" class="logout-btn">Logout</button>
-    </header>
+  <div class="app-layout">
+    <Sidebar @create="handleCreate" />
     
-    <main>
-      <CreateTodoForm @create="handleCreate" />
+    <main class="main-content">
+      <header class="top-bar">
+        <div class="project-info">
+          <span class="star-icon">★</span>
+          <h1>Statra Insurance</h1>
+          <span class="chevron">⌄</span>
+        </div>
+        
+        <div class="top-actions">
+           <div class="user-profile">
+            <span class="email">{{ user?.email }}</span>
+             <button @click="handleLogout" class="logout-btn">Logout</button>
+           </div>
+           <ThemeToggle />
+        </div>
+      </header>
 
-      <div v-if="loading && todos.length === 0" class="loading-state">
-        Loading tasks...
+      <div class="view-controls">
+        <div class="tabs">
+          <a href="#" class="tab">Backlog</a>
+          <a href="#" class="tab">Priority Chart</a>
+          <a href="#" class="tab active">
+            <span class="icon">📊</span> Kanban Workflow
+          </a>
+        </div>
       </div>
 
-      <div v-else-if="error" class="error-state">
-        {{ error }}
-      </div>
+      <div class="kanban-board">
+        <!-- To Do Column -->
+        <div 
+          class="kanban-column"
+          :class="{ 'drag-active': activeDropZone === 'todo' }"
+          @dragover.prevent="onDragOver"
+          @dragenter.prevent="onDragEnter('todo')"
+          @dragleave.prevent="onDragLeave('todo')"
+          @drop="onDrop($event, 'todo')"
+        >
+          <div class="column-header">
+            <h3>To Do</h3>
+            <button class="more-options">⋮</button>
+          </div>
+          <div class="task-list">
+             <div v-if="loading" class="loading-state">Loading...</div>
+             <div 
+               v-for="task in todoTasks" 
+               :key="task.id"
+               draggable="true"
+               class="draggable-item"
+               @dragstart="onDragStart($event, task)"
+             >
+               <TaskCard 
+                  :todo="task" 
+                  @delete="deleteTodo(task.id)"
+               />
+             </div>
+             <div class="add-new-placeholder" @click="handleCreate">
+               + Add new task
+             </div>
+          </div>
+        </div>
 
-      <div v-else-if="todos.length === 0" class="empty-state">
-        <div class="empty-icon">📝</div>
-        <h3>No tasks yet</h3>
-        <p>Add your first task above to get started!</p>
-      </div>
+        <!-- In Progress Column -->
+        <div 
+          class="kanban-column"
+          :class="{ 'drag-active': activeDropZone === 'in-progress' }"
+          @dragover.prevent="onDragOver"
+          @dragenter.prevent="onDragEnter('in-progress')"
+          @dragleave.prevent="onDragLeave('in-progress')"
+          @drop="onDrop($event, 'in-progress')"
+        >
+           <div class="column-header">
+            <h3>In Progress</h3>
+            <button class="more-options">⋮</button>
+          </div>
+          <div class="task-list">
+             <div 
+               v-for="task in inProgressTasks" 
+               :key="task.id"
+               draggable="true"
+               class="draggable-item"
+               @dragstart="onDragStart($event, task)"
+             >
+                <TaskCard 
+                    :todo="task" 
+                    @delete="deleteTodo(task.id)"
+                />
+             </div>
+             <div v-if="inProgressTasks.length === 0" class="empty-placeholder">
+               No tasks
+             </div>
+          </div>
+        </div>
 
-      <div v-else class="todo-list">
-        <TodoItem 
-          v-for="todo in todos" 
-          :key="todo.id" 
-          :todo="todo"
-          @update="handleUpdate"
-          @delete="handleDelete"
-          @toggle-complete="handleToggle"
-        />
+        <!-- Done Column -->
+        <div 
+          class="kanban-column"
+          :class="{ 'drag-active': activeDropZone === 'done' }"
+          @dragover.prevent="onDragOver"
+          @dragenter.prevent="onDragEnter('done')"
+          @dragleave.prevent="onDragLeave('done')"
+          @drop="onDrop($event, 'done')"
+        >
+           <div class="column-header">
+            <h3>Done</h3>
+            <button class="more-options">⋮</button>
+          </div>
+           <div class="task-list">
+             <div 
+               v-for="task in doneTasks" 
+               :key="task.id"
+               draggable="true"
+               class="draggable-item"
+               @dragstart="onDragStart($event, task)"
+             >
+                <TaskCard 
+                    :todo="task" 
+                    @delete="deleteTodo(task.id)"
+                />
+             </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-.dashboard {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
-.header {
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+}
+
+.top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 3rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem 2.5rem;
+  background-color: var(--bg-primary);
 }
 
-.user-info h1 {
-  margin: 0;
+.project-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.project-info h1 {
   font-size: 1.5rem;
+  margin: 0;
+  font-weight: 700;
   color: var(--text-primary);
+}
+
+.star-icon {
+  color: #f59e0b;
+  font-size: 1.25rem;
+  background-color: #fef3c7;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .email {
-  font-size: 0.875rem;
   color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 .logout-btn {
-  padding: 0.5rem 1rem;
-  background-color: var(--bg-card);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
   border: 1px solid var(--border-color);
-  color: var(--text-primary);
-  border-radius: 6px;
+  background: transparent;
+  border-radius: 4px;
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.logout-btn:hover {
-  background-color: var(--danger-color);
-  border-color: var(--danger-color);
-  color: white;
+.view-controls {
+  padding: 0 2.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.loading-state, .error-state {
-  text-align: center;
-  padding: 3rem;
+.tabs {
+  display: flex;
+  gap: 2rem;
+}
+
+.tab {
+  padding: 1rem 0;
+  text-decoration: none;
   color: var(--text-secondary);
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.error-state {
-  color: var(--danger-color);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: var(--bg-secondary);
-  border-radius: 12px;
-  border: 2px dashed var(--border-color);
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-  margin: 0 0 0.5rem 0;
+.tab.active {
   color: var(--text-primary);
+  border-bottom-color: #d2f476; /* The green accent */
 }
 
-.empty-state p {
-  margin: 0;
-  color: var(--text-secondary);
+.kanban-board {
+  display: flex;
+  gap: 2rem;
+  padding: 0 2.5rem 2rem 2.5rem;
+  overflow-x: auto;
+  height: 100%;
 }
 
-.todo-list {
+.kanban-column {
+  flex: 1;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
+  background: transparent;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+  height: 100%;
+}
+
+.kanban-column.drag-active {
+  background-color: var(--bg-hover);
+  box-shadow: inset 0 0 0 2px var(--primary-color);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+  flex: 1; /* Make task list fill remaining space */
+  min-height: 200px; /* Ensure drop zone exists */
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+}
+
+.column-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.more-options {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+.add-new-placeholder {
+  color: var(--text-muted);
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.add-new-placeholder:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.empty-placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 2rem;
 }
 </style>

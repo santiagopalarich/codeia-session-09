@@ -19,8 +19,8 @@ export function useTodos() {
             .from('todos')
             .select(`
                 *,
-                assignee:assignee_id(id, full_name, avatar_url),
-                responsible:responsible_id(id, full_name, avatar_url),
+                assignee:profiles!assignee_id(id, full_name, avatar_url),
+                responsible:profiles!responsible_id(id, full_name, avatar_url),
                 team:teams(id, name)
             `)
             .order('created_at', { ascending: false })
@@ -47,8 +47,8 @@ export function useTodos() {
             })
             .select(`
                 *,
-                assignee:assignee_id(id, full_name, avatar_url),
-                responsible:responsible_id(id, full_name, avatar_url),
+                assignee:profiles!assignee_id(id, full_name, avatar_url),
+                responsible:profiles!responsible_id(id, full_name, avatar_url),
                 team:teams(id, name)
             `)
             .single()
@@ -63,7 +63,12 @@ export function useTodos() {
             .from('todos')
             .update(updates)
             .eq('id', id)
-            .select()
+            .select(`
+                *,
+                assignee:profiles!assignee_id(id, full_name, avatar_url),
+                responsible:profiles!responsible_id(id, full_name, avatar_url),
+                team:teams(id, name)
+            `)
             .single()
 
         if (updateError) throw updateError

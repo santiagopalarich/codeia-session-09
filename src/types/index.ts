@@ -20,6 +20,12 @@ export interface TeamMember {
     profile?: Profile
 }
 
+export interface Project {
+    id: string
+    name: string
+    color: string
+}
+
 export interface Todo {
     id: string
     user_id: string
@@ -33,8 +39,10 @@ export interface Todo {
     assignee_id?: string | null // Ejecutor
     responsible_id?: string | null // Responsable
     deadline?: string | null
+    project_id?: string | null
     // Joins
     assignee?: Profile
     responsible?: Profile
     team?: Team
+    project?: Project
 }

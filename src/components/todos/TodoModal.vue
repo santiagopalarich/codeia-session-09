@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import type { Todo } from '@/types'
 import { useTeams } from '@/composables/useTeams'
 import { useProfiles } from '@/composables/useProfiles'
+import { useProjects } from '@/composables/useProjects'
 
 const props = defineProps<{
     isOpen: boolean
@@ -13,10 +14,12 @@ const emit = defineEmits(['close', 'save'])
 
 const { teams, fetchTeams } = useTeams()
 const { profiles, fetchProfiles } = useProfiles()
+const { projects, fetchProjects } = useProjects()
 
 onMounted(() => {
     fetchTeams()
     fetchProfiles()
+    fetchProjects()
 })
 
 const form = ref<Partial<Todo>>({
@@ -26,7 +29,8 @@ const form = ref<Partial<Todo>>({
     team_id: null,
     assignee_id: null,
     responsible_id: null,
-    deadline: null
+    deadline: null,
+    project_id: null
 })
 
 // Initialize form when opening
@@ -42,7 +46,8 @@ const initForm = () => {
             team_id: null,
             assignee_id: null,
             responsible_id: null,
-            deadline: null
+            deadline: null,
+            project_id: null
         }
     }
 }
@@ -91,6 +96,16 @@ const save = () => {
                 <label>Deadline</label>
                 <input type="datetime-local" v-model="form.deadline" class="input" />
             </div>
+        </div>
+
+        <div class="form-group">
+            <label>Project</label>
+            <select v-model="form.project_id" class="input">
+                <option :value="null">No Project</option>
+                <option v-for="project in projects" :key="project.id" :value="project.id">
+                    {{ project.name }}
+                </option>
+            </select>
         </div>
 
         <div class="form-group">

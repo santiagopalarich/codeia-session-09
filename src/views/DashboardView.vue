@@ -13,7 +13,7 @@ const router = useRouter()
 const { 
   todos, 
   loading, 
-  error, 
+
   createTodo, 
   updateStatus, 
   deleteTodo 

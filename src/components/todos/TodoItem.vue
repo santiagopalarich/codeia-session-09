@@ -34,17 +34,17 @@ const saveEdit = () => {
 </script>
 
 <template>
-  <div class="todo-item" :class="{ completed: todo.is_completed }">
+  <div class="todo-item" :class="{ completed: todo.status === 'done' }">
     <div class="todo-content">
       <input 
         type="checkbox" 
-        :checked="todo.is_completed"
+        :checked="todo.status === 'done'"
         @change="emit('toggle-complete', todo.id)"
         class="checkbox"
       />
       
       <div v-if="!isEditing" class="text-content">
-        <h3 :class="{ 'text-through': todo.is_completed }">{{ todo.title }}</h3>
+        <h3 :class="{ 'text-through': todo.status === 'done' }">{{ todo.title }}</h3>
         <p v-if="todo.description" class="description">{{ todo.description }}</p>
       </div>
       

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import type { Todo, Team, Profile } from '@/types'
+import { ref, onMounted } from 'vue'
+import type { Todo } from '@/types'
 import { useTeams } from '@/composables/useTeams'
 import { useProfiles } from '@/composables/useProfiles'
 
